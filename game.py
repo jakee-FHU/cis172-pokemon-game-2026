@@ -14,8 +14,11 @@ HEIGHT = 600
 game_state = "intro_sequence"  #determines the what part of the game the player is in, will change alot
 user_name = ""
 
+battle_message = [] 
+
+winner = None
+
 def draw():
-    global game_state
 
 ###Choose your name (text)###
     if game_state == "intro_sequence":
@@ -33,10 +36,35 @@ def draw():
 ###Placeholder, will most likely change, just tells the user what starter they chose###
     elif game_state == "starter_confirmed":
         screen.clear()
-        screen.draw.text(f"You chose {chosen_starter}!", (250, 50))
+        screen.draw.text(f"You chose {chosen_starter.species}!", (250, 50))
+        screen.draw.text(f"Are you ready {user_name}? Press ENTER to fight!", (250, 100))
+
+###Simple battle
+    elif game_state == "battle":
+        screen.clear()
+        
+        screen.draw.text(f"{player.name.upper()}:\t {player.active_pokemon.name} ({player.active_pokemon.health}/{player.active_pokemon.max_health} HP)", (50, 350))
+        screen.draw.text(f"{rival.name.upper()}:\t {rival.active_pokemon.name} ({rival.active_pokemon.health}/{rival.active_pokemon.max_health} HP)", (400, 50))
+
+        for i, move in enumerate(player.active_pokemon.moves):
+            screen.draw.text(f"\nChoose a move:  {i+1}. {move.name}", (50, 375 + i * 50))
+
+        for i, msg in enumerate(battle_message):
+            screen.draw.text(msg, (400, 100 + i * 50))
+
+    elif game_state == "gg":
+        screen.clear()
+
+        if winner == "player":
+            screen.draw.text(f"Congrats {user_name}! You won!", (250, 50))
+        elif winner == "rival":
+            screen.draw.text(f"Sorry {user_name}! You lost...")
+
+        
+        
 
 def on_key_down(key, unicode):
-    global user_name, game_state, chosen_starter
+    global user_name, game_state, chosen_starter, player, battle_message
 
 ###Intro input###
     if game_state == "intro_sequence":
@@ -45,21 +73,83 @@ def on_key_down(key, unicode):
         elif key == keys.RETURN:
             if len(user_name) > 0:   #Need more here maybe, allow special characters and numbers?
                 game_state = "choose_starter"
+                player = Trainer(name = user_name)
         elif unicode: 
                 user_name += unicode
 
 ###Starter selection input###
-    if game_state == "choose_starter":
+    elif game_state == "choose_starter":
         if key == keys.K_1:
-            chosen_starter = starters[0].species
+            chosen_starter = starters[0]
+
+            player.party.append(chosen_starter)
+            player.active_pokemon = chosen_starter
+            starters.remove(chosen_starter)
+
             game_state = "starter_confirmed"
+        
         elif key == keys.K_2:
-            chosen_starter = starters[1].species
+            chosen_starter = starters[1]
+
+            player.party.append(chosen_starter)
+            player.active_pokemon = chosen_starter
+            starters.remove(chosen_starter)
+
             game_state = "starter_confirmed"
+        
         elif key == keys.K_3:
-            chosen_starter = starters[2].species
+            chosen_starter = starters[2]
+
+            player.party.append(chosen_starter)
+            player.active_pokemon = chosen_starter
+            starters.remove(chosen_starter)
+
             game_state = "starter_confirmed"
+        
 
+    elif game_state == "starter_confirmed":
+        if key == keys.RETURN:
+            global rival
 
+            rival = Rival("Opponent")
+
+            rival_starter = random.choice(starters)
+
+            rival.party = [rival_starter]
+            rival.active_pokemon = rival_starter
+
+            game_state = "battle"
+
+    elif game_state == "battle":
+        global battle_message, winner
+
+        battle_message.clear()
+
+        if key == keys.K_1:
+            move = player.active_pokemon.moves[0]
+        elif key == keys.K_2:
+            move = player.active_pokemon.moves[1]
+        else:
+            return 
+        
+        
+        #PLAYER ATTACK
+        player.active_pokemon.attack(move, rival.active_pokemon)
+        battle_message.append(f"{player.active_pokemon.name} used {move.name}!")
+
+        #RIVAL ATTACK
+        if rival.active_pokemon.health > 0:
+            r_move = random.choice(rival.active_pokemon.moves)
+            rival.active_pokemon.attack(r_move, player.active_pokemon)
+            battle_message.append(f"{rival.active_pokemon.name} used {r_move.name}!")
+
+        if rival.active_pokemon.health <= 0:
+            winner = "player"
+            game_state = "gg"
+        elif player.active_pokemon.health <= 0:
+            winner = "rival"
+            game_state = "gg"
+
+            
 
 pgzrun.go()
