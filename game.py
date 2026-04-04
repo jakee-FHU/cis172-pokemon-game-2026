@@ -46,11 +46,13 @@ def draw():
         screen.draw.text(f"{player.name.upper()}:\t {player.active_pokemon.name} ({player.active_pokemon.health}/{player.active_pokemon.max_health} HP)", (50, 350))
         screen.draw.text(f"{rival.name.upper()}:\t {rival.active_pokemon.name} ({rival.active_pokemon.health}/{rival.active_pokemon.max_health} HP)", (400, 50))
 
+        screen.draw.text("Choose a move:", (50, 380))
+
         for i, move in enumerate(player.active_pokemon.moves):
-            screen.draw.text(f"\nChoose a move:  {i+1}. {move.name}", (50, 375 + i * 50))
+            screen.draw.text(f"\n {i+1}. {move.name}", (50, 400 + i * 30))
 
         for i, msg in enumerate(battle_message):
-            screen.draw.text(msg, (400, 100 + i * 50))
+            screen.draw.text(msg, (400, 380 + i * 50))
 
     elif game_state == "gg":
         screen.clear()
