@@ -1,6 +1,6 @@
 import pgzrun, random
 from trainer import Trainer, Rival
-from battle import Battle
+# from battle import Battle
 from starters import make_starters
 
 starters = make_starters()
@@ -11,8 +11,11 @@ HEIGHT = 600
 
 game_state = "intro_sequence"  #determines the what part of the game the player is in, will change alot
 user_name = ""
+battle_count = 1
+max_battles = 3
+new_pokemon = None
 
-battle_message = [] 
+battle_message = []
 
 winner = None
 
@@ -44,13 +47,22 @@ def draw():
         screen.draw.text(f"{player.name.upper()}:\t {player.active_pokemon.name} ({player.active_pokemon.health}/{player.active_pokemon.max_health} HP)", (50, 350))
         screen.draw.text(f"{rival.name.upper()}:\t {rival.active_pokemon.name} ({rival.active_pokemon.health}/{rival.active_pokemon.max_health} HP)", (400, 50))
 
-        screen.draw.text("Choose a move:", (50, 380))
+        screen.draw.text("Choose a move by pressing a key:", (50, 380))
 
         for i, move in enumerate(player.active_pokemon.moves):
             screen.draw.text(f"\n {i+1}. {move.name}", (50, 400 + i * 30))
 
         for i, msg in enumerate(battle_message):
             screen.draw.text(msg, (400, 380 + i * 50))
+    
+    elif game_state == "battle_end":
+        screen.clear()
+        screen.draw.text(f"Congrats {user_name}! You won the battle!", (250, 50))
+
+    elif game_state == "new_pokemon":
+        screen.clear()
+        screen.draw.text(f"A {new_pokemon.species} has been added to your party!", (250, 50))
+        screen.draw.text(f"Are you ready {user_name}? Press ENTER to fight!", (250, 100))
 
     elif game_state == "gg":
         screen.clear()
@@ -61,7 +73,18 @@ def draw():
             screen.draw.text(f"Sorry {user_name}! You lost...")
 
         
-        
+def start_battle():
+    global rival, battle_message, battle_count
+    battle_message.clear()
+
+    # restore player's party health before each battle
+    for pokemon in player.party:
+        pokemon.health = pokemon.max_health
+
+    rival = Rival("Opponent")
+    rival_starter = random.choice(starters)
+    rival.party = [rival_starter]
+    rival.active_pokemon = rival_starter
 
 def on_key_down(key, unicode):
     global user_name, game_state, chosen_starter, player, battle_message
@@ -79,49 +102,33 @@ def on_key_down(key, unicode):
 
 ###Starter selection input###
     elif game_state == "choose_starter":
+        chosen_starter = None
+
         if key == keys.K_1:
             chosen_starter = starters[0]
-
-            player.party.append(chosen_starter)
-            player.active_pokemon = chosen_starter
-            starters.remove(chosen_starter)
-
-            game_state = "starter_confirmed"
-        
         elif key == keys.K_2:
             chosen_starter = starters[1]
-
-            player.party.append(chosen_starter)
-            player.active_pokemon = chosen_starter
-            starters.remove(chosen_starter)
-
-            game_state = "starter_confirmed"
-        
         elif key == keys.K_3:
             chosen_starter = starters[2]
+        else:
+            return #in case player does not input a valid number
 
+        if chosen_starter:
             player.party.append(chosen_starter)
             player.active_pokemon = chosen_starter
-            starters.remove(chosen_starter)
 
             game_state = "starter_confirmed"
-        
 
     elif game_state == "starter_confirmed":
         if key == keys.RETURN:
             global rival
 
-            rival = Rival("Opponent")
-
-            rival_starter = random.choice(starters)
-
-            rival.party = [rival_starter]
-            rival.active_pokemon = rival_starter
+            start_battle()
 
             game_state = "battle"
 
     elif game_state == "battle":
-        global battle_message, winner
+        global battle_message, winner, battle_count
 
         battle_message.clear()
 
@@ -143,13 +150,28 @@ def on_key_down(key, unicode):
             rival.active_pokemon.attack(r_move, player.active_pokemon)
             battle_message.append(f"{rival.active_pokemon.name} used {r_move.name}!")
 
+
         if rival.active_pokemon.health <= 0:
-            winner = "player"
-            game_state = "gg"
+            if battle_count < max_battles:
+                battle_count += 1
+                game_state = "battle_end"
+            else:
+                winner = "player"
+                game_state = "gg"
         elif player.active_pokemon.health <= 0:
             winner = "rival"
             game_state = "gg"
 
-            
+    elif game_state == "battle_end":
+        if key == keys.RETURN:
+            global new_pokemon
+            new_pokemon = random.choice(starters[:])
+            player.party.append(new_pokemon)
+            game_state = "new_pokemon"
+
+    elif game_state == "new_pokemon":
+        if key == keys.RETURN:
+            start_battle()
+            game_state = "battle"
 
 pgzrun.go()
