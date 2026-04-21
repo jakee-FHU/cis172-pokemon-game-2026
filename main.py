@@ -1,7 +1,7 @@
 import pgzrun, random
 from trainer import Trainer, Rival
 # from battle import Battle
-from starters import make_starters
+from starters import make_starters, make_pokemon
 
 starters = make_starters()
 
@@ -70,7 +70,7 @@ def draw():
         if winner == "player":
             screen.draw.text(f"Congrats {user_name}! You won!", (250, 50))
         elif winner == "rival":
-            screen.draw.text(f"Sorry {user_name}! You lost...")
+            screen.draw.text(f"Sorry {user_name}! You lost...", (250, 50))
 
         
 def start_battle():
@@ -82,7 +82,8 @@ def start_battle():
         pokemon.health = pokemon.max_health
 
     rival = Rival("Opponent")
-    rival_starter = random.choice(starters)
+    rival_species = random.choice(starters).species
+    rival_starter = make_pokemon(rival_species)
     rival.party = [rival_starter]
     rival.active_pokemon = rival_starter
 
@@ -102,22 +103,21 @@ def on_key_down(key, unicode):
 
 ###Starter selection input###
     elif game_state == "choose_starter":
-        chosen_starter = None
+        chosen_species = None
 
         if key == keys.K_1:
-            chosen_starter = starters[0]
+            chosen_species = starters[0].species
         elif key == keys.K_2:
-            chosen_starter = starters[1]
+            chosen_species = starters[1].species
         elif key == keys.K_3:
-            chosen_starter = starters[2]
+            chosen_species = starters[2].species
         else:
             return #in case player does not input a valid number
 
-        if chosen_starter:
-            player.party.append(chosen_starter)
-            player.active_pokemon = chosen_starter
-
-            game_state = "starter_confirmed"
+        chosen_starter = make_pokemon(chosen_species)
+        player.party.append(chosen_starter)
+        player.active_pokemon = chosen_starter
+        game_state = "starter_confirmed"
 
     elif game_state == "starter_confirmed":
         if key == keys.RETURN:
@@ -165,7 +165,8 @@ def on_key_down(key, unicode):
     elif game_state == "battle_end":
         if key == keys.RETURN:
             global new_pokemon
-            new_pokemon = random.choice(starters[:])
+            reward_species = random.choice(starters).species
+            new_pokemon = make_pokemon(reward_species)
             player.party.append(new_pokemon)
             game_state = "new_pokemon"
 
