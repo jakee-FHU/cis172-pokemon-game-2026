@@ -94,6 +94,7 @@ def draw():
         bottom_panel = Rect((0, 400), (800, 200))
         screen.draw.filled_rect(bottom_panel, (240, 240, 200))
         screen.draw.text(f"Congrats {user_name}! You won the battle!", (50, 450), color="black")
+        screen.draw.text("Press ENTER to continue", (50, 500), color="black")
 
     elif game_state == "new_pokemon":
         bottom_panel = Rect((0, 400), (800, 200))
