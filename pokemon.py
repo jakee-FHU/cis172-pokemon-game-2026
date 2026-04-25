@@ -18,6 +18,8 @@ class Pokemon():
         self.elem_weakness = elem_weakness
         # composition list of available moves:
         self.moves = []
+        # sprite:
+        self.sprite = species.lower()
 
     # performs selected move and deals damage to opponent based on attack_power and elem_type, and opponent's elem_weakness:
     def attack(self, move, opponent):

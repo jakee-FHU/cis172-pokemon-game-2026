@@ -14,63 +14,94 @@ user_name = ""
 battle_count = 1
 max_battles = 3
 new_pokemon = None
+music_playing = False
 
 battle_message = []
 
 winner = None
 
+#start music
+def update():
+    global music_playing
+    if music_playing == False:
+        music.play("battle_bgm")
+        music.set_volume(0.1)
+        music_playing = True
+
 def draw():
+    screen.blit("battle_bg", (0, 0))
 
 ###Choose your name (text)###
     if game_state == "intro_sequence":
-        screen.clear() #clears previous text
-        screen.draw.text(f"Enter your name: " + user_name, (250, 50)) #adds new text
+        bottom_panel = Rect((0, 400), (800, 200))
+        screen.draw.filled_rect(bottom_panel, (240, 240, 200))
+        screen.draw.text(f"Enter your name: " + user_name, (50, 450), color="black") #adds new text
 
 ###Choose your starter (text)###
     elif game_state == "choose_starter":
-        screen.clear()  
-        screen.draw.text(f"Hello {user_name}! Choose your Pokemon!", (250, 50 ))  
+        bottom_panel = Rect((0, 400), (800, 200))
+        screen.draw.filled_rect(bottom_panel, (240, 240, 200))
+        screen.draw.text(f"Hello {user_name}! Choose your Pokemon!", (50, 450), color="black")  
         
         for i, pokemon in enumerate(starters):
-            screen.draw.text(f"{i+1}. {pokemon.species}", (250, 150 + (i * 50)))  # 3 starters
+            screen.draw.text(f"{i+1}. {pokemon.species}", (50, 490 + (i * 30)), color="black")  # 3 starters
 
 ###Placeholder, will most likely change, just tells the user what starter they chose###
     elif game_state == "starter_confirmed":
-        screen.clear()
-        screen.draw.text(f"You chose {chosen_starter.species}!", (250, 50))
-        screen.draw.text(f"Are you ready {user_name}? Press ENTER to fight!", (250, 100))
+        bottom_panel = Rect((0, 400), (800, 200))
+        screen.draw.filled_rect(bottom_panel, (240, 240, 200))
+        screen.draw.text(f"You chose {chosen_starter.species}!", (50, 450), color="black")
+        screen.draw.text(f"Are you ready {user_name}? Press ENTER to fight!", (50, 490), color="black")
 
 ###Simple battle
     elif game_state == "battle":
-        screen.clear()
+        bottom_panel = Rect((0, 400), (800, 200))
+        screen.draw.filled_rect(bottom_panel, (240, 240, 200))
+        top_panel = Rect((0, 0), (800, 100))
+        screen.draw.filled_rect(top_panel, (240, 240, 200))
         
-        screen.draw.text(f"{player.name.upper()}:\t {player.active_pokemon.name} ({player.active_pokemon.health}/{player.active_pokemon.max_health} HP)", (50, 350))
-        screen.draw.text(f"{rival.name.upper()}:\t {rival.active_pokemon.name} ({rival.active_pokemon.health}/{rival.active_pokemon.max_health} HP)", (400, 50))
+        # player pokemon
+        player_sprite = Actor(player.active_pokemon.sprite)
+        player_sprite.pos = (220, 250)
+        player_sprite.draw()
 
-        screen.draw.text("Choose a move by pressing a key:", (50, 380))
+        # rival pokemon
+        rival_sprite = Actor(rival.active_pokemon.sprite)
+        rival_sprite.pos = (600, 250)
+        rival_sprite.draw()
+
+        screen.draw.text(f"{player.name.upper()}:\t {player.active_pokemon.name} ({player.active_pokemon.health}/{player.active_pokemon.max_health} HP)", (50, 420), color="black")
+        screen.draw.text(f"{rival.name.upper()}:\t {rival.active_pokemon.name} ({rival.active_pokemon.health}/{rival.active_pokemon.max_health} HP)", (400, 50), color="black")
+
+        screen.draw.text("Press a key to play:", (50, 450), color="black")
 
         for i, move in enumerate(player.active_pokemon.moves):
-            screen.draw.text(f"\n {i+1}. {move.name}", (50, 400 + i * 30))
+            screen.draw.text(f"{i+1}. {move.name}", (50, 490 + i * 30), color="black")
+                
+        screen.draw.text(f"{len(player.active_pokemon.moves) + 1}. Use Potion ({player.potions}/10)", (50, 490 + (len(player.active_pokemon.moves)) * 30), color="black")
 
         for i, msg in enumerate(battle_message):
-            screen.draw.text(msg, (400, 380 + i * 50))
+            screen.draw.text(msg, (400, 450 + i * 30), color="black")
     
     elif game_state == "battle_end":
-        screen.clear()
-        screen.draw.text(f"Congrats {user_name}! You won the battle!", (250, 50))
+        bottom_panel = Rect((0, 400), (800, 200))
+        screen.draw.filled_rect(bottom_panel, (240, 240, 200))
+        screen.draw.text(f"Congrats {user_name}! You won the battle!", (50, 450), color="black")
 
     elif game_state == "new_pokemon":
-        screen.clear()
-        screen.draw.text(f"A {new_pokemon.species} has been added to your party!", (250, 50))
-        screen.draw.text(f"Are you ready {user_name}? Press ENTER to fight!", (250, 100))
+        bottom_panel = Rect((0, 400), (800, 200))
+        screen.draw.filled_rect(bottom_panel, (240, 240, 200))
+        screen.draw.text(f"A {new_pokemon.species} has been added to your party!", (50, 450), color="black")
+        screen.draw.text(f"Are you ready {user_name}? Press ENTER to fight!", (50, 490), color="black")
 
     elif game_state == "gg":
-        screen.clear()
+        bottom_panel = Rect((0, 400), (800, 200))
+        screen.draw.filled_rect(bottom_panel, (240, 240, 200))
 
         if winner == "player":
-            screen.draw.text(f"Congrats {user_name}! You won!", (250, 50))
+            screen.draw.text(f"Congrats {user_name}! You won!", (50, 450), color="black")
         elif winner == "rival":
-            screen.draw.text(f"Sorry {user_name}! You lost...", (250, 50))
+            screen.draw.text(f"Sorry {user_name}! You lost...", (50, 450), color="black")
 
         
 def start_battle():
@@ -132,24 +163,33 @@ def on_key_down(key, unicode):
 
         battle_message.clear()
 
+        # PLAYER CHOICE
         if key == keys.K_1:
             move = player.active_pokemon.moves[0]
+            player.active_pokemon.attack(move, rival.active_pokemon)
+            battle_message.append(f"{player.active_pokemon.name} used {move.name}!")            
         elif key == keys.K_2:
             move = player.active_pokemon.moves[1]
+            player.active_pokemon.attack(move, rival.active_pokemon)
+            battle_message.append(f"{player.active_pokemon.name} used {move.name}!") 
+        elif key == keys.K_3:
+            if player.potions > 0 and player.active_pokemon.health == player.active_pokemon.max_health:
+                battle_message.append(f"{player.active_pokemon.name} is at full health!")
+                return
+            elif player.potions > 0:
+                heal_amount = player.use_potion(player.active_pokemon)
+                battle_message.append(f"{player.active_pokemon.name} healed {heal_amount} HP!")
+            else:
+                battle_message.append(f"No potions to use!")
+                return
         else:
-            return 
-        
-        
-        #PLAYER ATTACK
-        player.active_pokemon.attack(move, rival.active_pokemon)
-        battle_message.append(f"{player.active_pokemon.name} used {move.name}!")
+            return
 
-        #RIVAL ATTACK
+        #RIVAL CHOICE
         if rival.active_pokemon.health > 0:
             r_move = random.choice(rival.active_pokemon.moves)
             rival.active_pokemon.attack(r_move, player.active_pokemon)
             battle_message.append(f"{rival.active_pokemon.name} used {r_move.name}!")
-
 
         if rival.active_pokemon.health <= 0:
             if battle_count < max_battles:
