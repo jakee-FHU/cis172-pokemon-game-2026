@@ -6,8 +6,8 @@ class Trainer:
         self.name = name
         # list of Pokemon in trainer's party (aggregation):
         self.party = []
-        # list of items in trainer's bag (aggregation):
-        self.bag = []
+        # number of healing items in trainer's bag (aggregation):
+        self.potions = 5
         # tracks the currently active Pokemon:
         self.active_pokemon = None
     
@@ -42,10 +42,15 @@ class Trainer:
             print(f"Go, {selected.name}!")
             return
         
-    # use an item during battle:
-    # def use_item(self, item, pokemon):
-    #     pass
-    # ---------------------------------------
+    # heal during battle:
+    def use_potion(self, pokemon):
+        self.potions -= 1
+        default_heal_amount = 20
+
+        missing_health = pokemon.max_health - pokemon.health
+        heal_amount = min(default_heal_amount, missing_health)
+        pokemon.health += heal_amount
+        return heal_amount
 
     def has_usable_pokemon(self):
         for pokemon in self.party:

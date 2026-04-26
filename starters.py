@@ -21,6 +21,26 @@ def make_starters():
 
     return starters
 
+def make_pokemon(species):
+    vine_whip = Move("Vine Whip", "Grass", 8, 100)
+    tackle = Move("Tackle", "Normal", 5, 100)
+    ember = Move("Ember", "Fire", 9, 100)
+    scratch = Move("Scratch", "Normal", 6, 100)
+    water_gun = Move("Water Gun", "Water", 9, 100)
+
+    if species == "Bulbasaur":
+        bulbasaur = Pokemon("Bulbasaur", 110, 18, "Grass", "Fire")
+        bulbasaur.moves = [vine_whip, tackle]
+        return bulbasaur
+    elif species == "Charmander":
+        charmander = Pokemon("Charmander", 95, 20, "Fire", "Water")
+        charmander.moves = [ember, scratch]
+        return charmander
+    elif species == "Squirtle":
+        squirtle = Pokemon("Squirtle", 105, 19, "Water", "Electric")
+        squirtle.moves = [water_gun, tackle]
+        return squirtle
+
 def choose_starter(starters):
     print("\n--- CHOOSE YOUR STARTER ---")
     for i, pokemon in enumerate(starters):
