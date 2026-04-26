@@ -7,7 +7,7 @@ class Trainer:
         # list of Pokemon in trainer's party (aggregation):
         self.party = []
         # number of healing items in trainer's bag (aggregation):
-        self.potions = 10
+        self.potions = 5
         # tracks the currently active Pokemon:
         self.active_pokemon = None
     
