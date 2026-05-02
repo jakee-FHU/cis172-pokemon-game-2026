@@ -66,7 +66,7 @@ def draw():
         screen.draw.text("3 - Use potion", (400, 520), color="black")
         screen.draw.text("S - Switch Pokemon", (400, 550), color="black")
 
-        screen.draw.text(f"Press ESCAPE at any time to quit.", (50, 520), color="black")
+        screen.draw.text(f"Press ESCAPE during battle to quit.", (50, 520), color="black")
         screen.draw.text(f"Are you ready? Press ENTER to fight!", (50, 550), color="black")
 
 ###Simple battle
