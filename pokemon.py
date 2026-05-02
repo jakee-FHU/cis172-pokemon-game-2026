@@ -34,7 +34,7 @@ class Pokemon():
         if self.health < 0:
             self.health = 0
         
-        print(f"{self.name} took {amount} damage! ({self.health}/{self.max_health} HP)")
+        # print(f"{self.name} took {amount} damage! ({self.health}/{self.max_health} HP)")
 
         if self.health == 0:
             self.faint()

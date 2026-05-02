@@ -375,9 +375,6 @@ def on_key_down(key, unicode):
                 game_state = "battle"
     
     elif game_state == "battle_end":
-        if key == keys.ESCAPE:
-            previous_state = game_state
-            game_state = "quit_confirm"
         if key == keys.RETURN:
             global new_pokemon
 
@@ -391,9 +388,6 @@ def on_key_down(key, unicode):
                 game_state = "battle"
 
     elif game_state == "new_pokemon":
-        if key == keys.ESCAPE:
-            previous_state = game_state
-            game_state = "quit_confirm"
         if key == keys.RETURN:
             start_battle()
             game_state = "battle"
