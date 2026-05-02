@@ -252,7 +252,6 @@ def on_key_down(key, unicode):
         elif key == keys.K_1:
             move = player.active_pokemon.moves[0]
             damage, eff = player.active_pokemon.attack(move, rival.active_pokemon)
-            # player.active_pokemon.attack(move, rival.active_pokemon)
             battle_message.append(f"{player.name.upper()}'s {player.active_pokemon.name} used {move.name}!")
             if eff > 1:
                 battle_message.append(f"It's super effective! ({damage} damage)")
@@ -263,7 +262,6 @@ def on_key_down(key, unicode):
         elif key == keys.K_2:
             move = player.active_pokemon.moves[1]
             damage, eff = player.active_pokemon.attack(move, rival.active_pokemon)
-            # player.active_pokemon.attack(move, rival.active_pokemon)
             battle_message.append(f"{player.name.upper()}'s {player.active_pokemon.name} used {move.name}!")
             if eff > 1:
                 battle_message.append(f"It's super effective! ({damage} damage)")
@@ -290,7 +288,6 @@ def on_key_down(key, unicode):
         if rival.active_pokemon.health > 0:
             r_move = random.choice(rival.active_pokemon.moves)
             r_damage, eff = rival.active_pokemon.attack(r_move, player.active_pokemon)
-            # rival.active_pokemon.attack(r_move, player.active_pokemon)
             battle_message.append(f"{rival.name.upper()}'s {rival.active_pokemon.name} used {r_move.name}!")
             if eff > 1:
                 battle_message.append(f"It's super effective! ({r_damage} damage)")
