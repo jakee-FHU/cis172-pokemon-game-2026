@@ -17,6 +17,8 @@ max_battles = 3
 new_pokemon = None
 music_playing = False
 
+pokemon_list = ["Charmander", "Bulbasaur", "Squirtle"]
+
 battle_message = []
 
 winner = None
@@ -376,8 +378,10 @@ def on_key_down(key, unicode):
             global new_pokemon
 
             if battle_count == 2:
-                reward_species = random.choice(starters).species
-                new_pokemon = make_pokemon(reward_species)
+                not_available = [p.species for p in player.party]
+                available = [p for p in starters if p.species not in not_available]
+                reward_pokemon = available[0].species
+                new_pokemon = make_pokemon(reward_pokemon)
                 player.party.append(new_pokemon)
                 game_state = "new_pokemon"
             else:
