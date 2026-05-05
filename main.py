@@ -9,12 +9,15 @@ WIDTH = 800     # size of the window
 HEIGHT = 600
 
 
-game_state = "intro_sequence"  #determines the what part of the game the player is in, will change alot
+game_state = "menu"  #determines the what part of the game the player is in, will change alot
+previous_state = None
 user_name = ""
 battle_count = 1
 max_battles = 3
 new_pokemon = None
 music_playing = False
+
+pokemon_list = ["Charmander", "Bulbasaur", "Squirtle"]
 
 battle_message = []
 
@@ -31,8 +34,15 @@ def update():
 def draw():
     screen.blit("battle_bg", (0, 0))
 
+    if game_state == "menu":
+        bottom_panel = Rect((0, 400), (800, 200))
+        screen.draw.filled_rect(bottom_panel, (240, 240, 200))
+        screen.draw.text(f"Welcome to Pokemon Champion!", (50, 450), color="black")        
+        screen.draw.text(f"Press ENTER to play.", (50, 500), color="black")
+        screen.draw.text(f"Press ESCAPE to quit.", (50, 530), color="black")
+
 ###Choose your name (text)###
-    if game_state == "intro_sequence":
+    elif game_state == "intro_sequence":
         bottom_panel = Rect((0, 400), (800, 200))
         screen.draw.filled_rect(bottom_panel, (240, 240, 200))
         screen.draw.text(f"Enter your name: " + user_name, (50, 450), color="black")
@@ -41,7 +51,7 @@ def draw():
     elif game_state == "choose_starter":
         bottom_panel = Rect((0, 400), (800, 200))
         screen.draw.filled_rect(bottom_panel, (240, 240, 200))
-        screen.draw.text(f"Hello {user_name}! Choose your Pokemon! (Use 1 / 2 / 3 keys)", (50, 450), color="black")  
+        screen.draw.text(f"Hello {user_name.upper()}! Choose your Pokemon! (Use 1 / 2 / 3 keys)", (50, 450), color="black")  
         
         for i, pokemon in enumerate(starters):
             screen.draw.text(f"{i+1}. {pokemon.species}", (50, 490 + (i * 30)), color="black")  # 3 starters
@@ -51,14 +61,15 @@ def draw():
         bottom_panel = Rect((0, 400), (800, 200))
         screen.draw.filled_rect(bottom_panel, (240, 240, 200))
         screen.draw.text(f"You chose {chosen_starter.species}!", (50, 450), color="black")
-        screen.draw.text(f"Your partner is {player.party[1].species}!", (50, 500), color="black")
+        screen.draw.text(f"Your second partner is {player.party[1].species}!", (50, 480), color="black")
 
         screen.draw.text("Controls:", (400, 450), color="black")
         screen.draw.text("1 / 2 - Choose move", (400, 490), color="black")
         screen.draw.text("3 - Use potion", (400, 520), color="black")
         screen.draw.text("S - Switch Pokemon", (400, 550), color="black")
 
-        screen.draw.text(f"Are you ready {user_name}? Press ENTER to fight!", (50, 550), color="black")
+        screen.draw.text(f"Press ESCAPE during battle to quit.", (50, 520), color="black")
+        screen.draw.text(f"Are you ready? Press ENTER to fight!", (50, 550), color="black")
 
 ###Simple battle
     elif game_state == "battle":
@@ -94,24 +105,25 @@ def draw():
     elif game_state == "battle_end":
         bottom_panel = Rect((0, 400), (800, 200))
         screen.draw.filled_rect(bottom_panel, (240, 240, 200))
-        screen.draw.text(f"Congrats {user_name}! You won the battle!", (50, 450), color="black")
-        screen.draw.text("Press ENTER to fight!", (50, 500), color="black")
+        screen.draw.text(f"Congrats {user_name.upper()}! You won the battle!", (50, 450), color="black")
+        screen.draw.text("Your party's health has been restored!", (50, 480), color="black")
+        screen.draw.text("Press ENTER to fight!", (50, 520), color="black")
 
     elif game_state == "new_pokemon":
         bottom_panel = Rect((0, 400), (800, 200))
         screen.draw.filled_rect(bottom_panel, (240, 240, 200))
         screen.draw.text(f"A {new_pokemon.species} has been added to your party!", (50, 450), color="black")
-        screen.draw.text(f"Are you ready {user_name}? Press ENTER to fight!", (50, 490), color="black")
+        screen.draw.text(f"Are you ready {user_name.upper()}? Press ENTER to fight!", (50, 490), color="black")
 
     elif game_state == "gg":
         bottom_panel = Rect((0, 400), (800, 200))
         screen.draw.filled_rect(bottom_panel, (240, 240, 200))
 
         if winner == "player":
-            screen.draw.text(f"Congrats {user_name}! You won!", (50, 450), color="black")
+            screen.draw.text(f"Congrats {user_name.upper()}! You won!", (50, 450), color="black")
         elif winner == "rival":
-            screen.draw.text(f"Sorry {user_name}! You lost...", (50, 450), color="black")
-        screen.draw.text(f"Press ENTER to close the game.", (50, 490), color="black")
+            screen.draw.text(f"Sorry {user_name.upper()}! You lost...", (50, 450), color="black")
+        screen.draw.text(f"Press ENTER to return to menu.", (50, 490), color="black")
     
     elif game_state == "switching":
         bottom_panel = Rect((0, 400), (800, 200))
@@ -127,6 +139,14 @@ def draw():
                 status = " (Fainted)"
 
             screen.draw.text(f"{i+1}. {pokemon.name} ({pokemon.health}/{pokemon.max_health} HP){status}", (50, 480 + i * 30),color="black")
+
+    elif game_state == "quit_confirm":
+        bottom_panel = Rect((0, 400), (800, 200))
+        screen.draw.filled_rect(bottom_panel, (240, 240, 200))
+
+        screen.draw.text(f"Are you sure you want to quit?", (50, 450), color="black")
+        screen.draw.text(f"Yes: Press ENTER to return to menu.", (50, 490), color="black")
+        screen.draw.text(f"No: BACKSPACE to continue.", (50, 520), color="black")
 
 
 def start_battle():
@@ -155,8 +175,25 @@ def start_battle():
 
     rival.active_pokemon = rival.party[0]
 
+def game_reset():
+    global game_state, previous_state, user_name, battle_count, new_pokemon, battle_message, winner, player, rival, chosen_starter
+
+    previous_state = None
+    user_name = ""
+    battle_count = 1
+    new_pokemon = None
+
+    battle_message.clear()
+
+    winner = None
+
+    player = None
+    rival = None
+
+    chosen_starter = None
+
 def on_key_down(key, unicode):
-    global user_name, game_state, chosen_starter, player, battle_message
+    global user_name, game_state, chosen_starter, player, battle_message, previous_state
 
 ###Intro input###
     if game_state == "intro_sequence":
@@ -207,17 +244,34 @@ def on_key_down(key, unicode):
         battle_message.clear()
 
         # PLAYER CHOICE
-        if key == keys.S:
+        if key == keys.ESCAPE:
+            previous_state = game_state
+            game_state = "quit_confirm"
+            return
+        elif key == keys.S:
             game_state = "switching"
             return
-        if key == keys.K_1:
+        elif key == keys.K_1:
             move = player.active_pokemon.moves[0]
-            player.active_pokemon.attack(move, rival.active_pokemon)
-            battle_message.append(f"{player.active_pokemon.name} used {move.name}!")            
+            damage, eff = player.active_pokemon.attack(move, rival.active_pokemon)
+            battle_message.append(f"{player.name.upper()}'s {player.active_pokemon.name} used {move.name}!")
+            if eff > 1:
+                battle_message.append(f"It's super effective! ({damage} damage)")
+            elif eff < 1:
+                battle_message.append(f"It's not very effective... ({damage} damage)")
+            else:
+                battle_message.append(f"It dealt {damage} damage!")
         elif key == keys.K_2:
             move = player.active_pokemon.moves[1]
-            player.active_pokemon.attack(move, rival.active_pokemon)
-            battle_message.append(f"{player.active_pokemon.name} used {move.name}!") 
+            damage, eff = player.active_pokemon.attack(move, rival.active_pokemon)
+            battle_message.append(f"{player.name.upper()}'s {player.active_pokemon.name} used {move.name}!")
+            if eff > 1:
+                battle_message.append(f"It's super effective! ({damage} damage)")
+            elif eff < 1:
+                battle_message.append(f"It's not very effective... ({damage} damage)")
+            else:
+                battle_message.append(f"It dealt {damage} damage!")
+
         elif key == keys.K_3:
             if player.potions > 0 and player.active_pokemon.health == player.active_pokemon.max_health:
                 battle_message.append(f"{player.active_pokemon.name} is at full health!")
@@ -235,14 +289,20 @@ def on_key_down(key, unicode):
         # RIVAL ATTACKS IF STILL ALIVE
         if rival.active_pokemon.health > 0:
             r_move = random.choice(rival.active_pokemon.moves)
-            rival.active_pokemon.attack(r_move, player.active_pokemon)
-            battle_message.append(f"{rival.active_pokemon.name} used {r_move.name}!")
+            r_damage, eff = rival.active_pokemon.attack(r_move, player.active_pokemon)
+            battle_message.append(f"{rival.name.upper()}'s {rival.active_pokemon.name} used {r_move.name}!")
+            if eff > 1:
+                battle_message.append(f"It's super effective! ({r_damage} damage)")
+            elif eff < 1:
+                battle_message.append(f"It's not very effective... ({r_damage} damage)")
+            else:
+                battle_message.append(f"It dealt {r_damage} damage!")
 
         #RIVAL CHOICE
         if rival.active_pokemon.health <= 0:
             if rival.has_usable_pokemon():
                 rival.switch_pokemon()
-                battle_message.append(f"Opponent sent out {rival.active_pokemon.name}!")
+                battle_message.append(f"{rival.name.upper()} sent out {rival.active_pokemon.name}!")
             else:
                 if battle_count < max_battles:
                     battle_count += 1
@@ -260,7 +320,10 @@ def on_key_down(key, unicode):
                 game_state = "gg"
     
     elif game_state == "switching":
-        if key == keys.K_1:
+        if key == keys.ESCAPE:
+            previous_state = game_state
+            game_state = "quit_confirm"
+        elif key == keys.K_1:
             index = 0
         elif key == keys.K_2:
             index = 1
@@ -285,13 +348,20 @@ def on_key_down(key, unicode):
 
             player.active_pokemon = selected
             battle_message.clear()
-            battle_message.append(f"Go, {selected.name}!")
+            battle_message.append(f"{player.name.upper()}: Go, {selected.name}!")
 
             # switching costs a turn, so rival attacks
             if rival.active_pokemon.health > 0:
                 r_move = random.choice(rival.active_pokemon.moves)
-                rival.active_pokemon.attack(r_move, player.active_pokemon)
-                battle_message.append(f"{rival.active_pokemon.name} used {r_move.name}!")
+                r_damage, eff = rival.active_pokemon.attack(r_move, player.active_pokemon)
+                # rival.active_pokemon.attack(r_move, player.active_pokemon)
+                battle_message.append(f"{rival.name.upper()}'s {rival.active_pokemon.name} used {r_move.name}!")
+                if eff > 1:
+                    battle_message.append(f"It's super effective! ({r_damage} damage)")
+                elif eff < 1:
+                    battle_message.append(f"It's not very effective... ({r_damage} damage)")
+                else:
+                    battle_message.append(f"It dealt {r_damage} damage!")
 
             if player.active_pokemon.health <= 0:
                 if player.has_usable_pokemon():
@@ -308,8 +378,10 @@ def on_key_down(key, unicode):
             global new_pokemon
 
             if battle_count == 2:
-                reward_species = random.choice(starters).species
-                new_pokemon = make_pokemon(reward_species)
+                not_available = [p.species for p in player.party]
+                available = [p for p in starters if p.species not in not_available]
+                reward_pokemon = available[0].species
+                new_pokemon = make_pokemon(reward_pokemon)
                 player.party.append(new_pokemon)
                 game_state = "new_pokemon"
             else:
@@ -323,6 +395,20 @@ def on_key_down(key, unicode):
 
     elif game_state == "gg":
         if key == keys.RETURN:
+            game_state = "menu"
+            game_reset()
+
+    elif game_state == "quit_confirm":
+        if key == keys.BACKSPACE:
+            game_state = previous_state
+        if key == keys.RETURN:
+            game_reset()
+            game_state = "menu"
+
+    elif game_state == "menu":
+        if key == keys.RETURN:
+            game_state = "intro_sequence"
+        if key == keys.ESCAPE:
             quit()
 
 pgzrun.go()

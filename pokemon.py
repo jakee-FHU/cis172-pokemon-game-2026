@@ -23,8 +23,9 @@ class Pokemon():
 
     # performs selected move and deals damage to opponent based on attack_power and elem_type, and opponent's elem_weakness:
     def attack(self, move, opponent):
-        damage = move.calc_damage(self, opponent)
+        damage, effectiveness = move.calc_damage(self, opponent)
         opponent.damage(damage)
+        return damage, effectiveness
 
     # reduce health when taking a hit based on elem_weakness and opponent's attack_power and elem_type:
     def damage(self, amount):
@@ -81,4 +82,4 @@ class Move():
         # final damage
         dmg = base_dmg * effectiveness * variation
 
-        return int(dmg)
+        return int(dmg), effectiveness
